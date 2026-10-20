@@ -144,6 +144,21 @@ svg.i.f{fill:currentColor; stroke:none}
 .ck{display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink2); margin-top:10px; cursor:pointer; user-select:none}
 .ck input{width:16px; height:16px; accent-color:var(--accent); margin:0}
 
+/* ---- 学年の切りかえ ---- */
+.grades{display:flex; gap:8px; margin-bottom:14px}
+.gbtn{flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:10px 8px; border-radius:14px; background:var(--card); border:1.5px solid var(--line); color:var(--ink2); transition:all .15s; box-shadow:var(--shadow-1)}
+.gbtn b{font-size:15px; font-weight:700; color:var(--ink)}
+.gbtn small{font-size:11.5px; color:var(--sub)}
+.gbtn:hover{border-color:var(--accent); transform:translateY(-1px)}
+.gbtn.on{background:var(--accent); border-color:var(--accent); box-shadow:0 6px 16px rgba(27,94,88,.3)}
+.gbtn.on b,.gbtn.on small{color:#fff}
+.gbtn.on small{opacity:.85}
+.tag.stage{background:#fff; border:1px solid var(--line2); color:var(--sub)}
+.tag.stage.s1{color:#2b7a4b; border-color:#bfe0cb} .tag.stage.s2{color:#b06a12; border-color:#f0d7ae} .tag.stage.s3{color:#7a3fa0; border-color:#dcc6ea}
+.chip.stg.on{background:var(--accent2); border-color:var(--accent2)}
+.stage .start{font-size:clamp(13px,1.5vw,20px); color:var(--st-sub); margin-top:clamp(12px,3vh,30px); padding:6px 16px; border:1.5px dashed var(--st-line); border-radius:999px}
+.stage .start b{color:var(--st-ink); font-weight:700}
+
 /* ---- ツールバー ---- */
 .toolbar{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px}
 .btn-random{
@@ -406,7 +421,7 @@ svg.i.f{fill:currentColor; stroke:none}
       <div class="logo" aria-hidden="true">問</div>
       <div>
         <h1>振り返りジャーナル テーマ選び</h1>
-        <div class="sub">小学校高学年向け・200テーマから今日の問いを</div>
+        <div class="sub">小学校1〜6年・400テーマから今日の問いを</div>
       </div>
     </div>
     <span class="sp"></span>
@@ -441,6 +456,10 @@ svg.i.f{fill:currentColor; stroke:none}
         <div class="fh"><span class="t">大きな分類</span><span class="n"></span></div>
         <div class="chips" id="catChips"></div>
       </div>
+      <div class="fsec" id="secStage">
+        <div class="fh"><span class="t">年間の段階</span><span class="n"></span></div>
+        <div class="chips" id="stageChips"></div>
+      </div>
       <div class="fsec" id="secTag">
         <div class="fh"><span class="t">テーマ別</span><span class="n"></span></div>
         <div class="chips" id="tagChips"></div>
@@ -459,6 +478,11 @@ svg.i.f{fill:currentColor; stroke:none}
 
   <!-- ===== 右：一覧 ===== -->
   <main class="main">
+    <div class="grades" id="grades">
+      <button class="gbtn" data-g="低"><b>低学年</b><small>1・2年</small></button>
+      <button class="gbtn" data-g="中"><b>中学年</b><small>3・4年</small></button>
+      <button class="gbtn" data-g="高"><b>高学年</b><small>5・6年</small></button>
+    </div>
     <div class="toolbar">
       <button class="btn-random" id="btnRandom"><svg class="i"><use href="#ic-dice"/></svg>この条件からランダムに選ぶ</button>
       <span class="count"><b id="cnt">0</b>件</span>
@@ -502,6 +526,7 @@ svg.i.f{fill:currentColor; stroke:none}
     <div class="catline" id="stCat"></div>
     <p class="text" id="stText"></p>
     <div class="aim" id="stAim"></div>
+    <div class="start" id="stStart"></div>
   </div>
   <div class="bottom">
     <button class="sbtn" id="stAgain" style="display:none"><svg class="i"><use href="#ic-dice"/></svg>もう一度引く<span class="k">Space</span></button>
@@ -510,6 +535,7 @@ svg.i.f{fill:currentColor; stroke:none}
     <button class="sbtn" id="stSmall" title="文字を小さく（−）"><svg class="i"><use href="#ic-tsize"/></svg>小<span class="k">−</span></button>
     <button class="sbtn" id="stLarge" title="文字を大きく（＋）"><svg class="i"><use href="#ic-tsize"/></svg>大<span class="k">＋</span></button>
     <button class="sbtn" id="stAimTgl" title="ねらいを表示／隠す（A）"><svg class="i"><use href="#ic-book"/></svg>ねらい<span class="k">A</span></button>
+    <button class="sbtn" id="stStartTgl" title="「わたしは」の書き出しを表示／隠す（W）"><svg class="i"><use href="#ic-edit"/></svg>書き出し<span class="k">W</span></button>
     <span class="sep"></span>
     <button class="sbtn" id="stCopy"><svg class="i"><use href="#ic-copy"/></svg>コピー</button>
     <button class="sbtn" id="stPrint"><svg class="i"><use href="#ic-print"/></svg>印刷</button>
@@ -524,7 +550,11 @@ svg.i.f{fill:currentColor; stroke:none}
     <h2><svg class="i"><use href="#ic-edit"/></svg><span id="editTitle">テーマを追加</span></h2>
     <div class="row"><label>テーマ（児童への問いかけ文）</label><textarea id="eText" placeholder="例： 今日の授業で、自分の考えがいちばん変わった瞬間はどこですか？"></textarea></div>
     <div class="row"><label>ねらい・アプローチ</label><input type="text" id="eAim" placeholder="例： 自己変容のメタ認知"></div>
-    <div class="row"><label>大きな分類</label><div class="sel"><select id="eCat"></select></div></div>
+    <div class="row" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px">
+      <div><label>学年</label><div class="sel"><select id="eGrade"><option value="低">低学年（1・2年）</option><option value="中">中学年（3・4年）</option><option value="高">高学年（5・6年）</option></select></div></div>
+      <div><label>大きな分類</label><div class="sel"><select id="eCat"></select></div></div>
+      <div><label>年間の段階</label><div class="sel"><select id="eStage"><option value="導入">導入期（1学期）</option><option value="展開">展開期（2学期）</option><option value="発展">発展期（3学期）</option></select></div></div>
+    </div>
     <div class="row"><label>テーマ別タグ（カンマ区切り）</label><input type="text" id="eTags" placeholder="例： 友達,感謝"><div class="note" id="tagList"></div></div>
     <div class="row"><label>時期・行事タグ（カンマ区切り）</label><input type="text" id="ePer" placeholder="例： 運動会"><div class="note" id="perList"></div></div>
     <div class="mbtns">
@@ -560,9 +590,11 @@ svg.i.f{fill:currentColor; stroke:none}
   <div class="modal help" style="max-width:640px">
     <h2><svg class="i"><use href="#ic-help"/></svg>使い方</h2>
     <ol>
+      <li><b>まず学年</b>：一覧の上で「低学年・中学年・高学年」を選びます。低学年はひらがなの短い問い、中学年は3年生までの漢字で書いてあります。</li>
       <li><b>ふだん</b>：左の絞り込みで条件をしぼり、カードの「大きく」を押すと提示モードになります。電子黒板に映すときは「全画面」を。</li>
+      <li><b>年間の段階</b>：導入期（1学期・事実と気持ちを書く）→展開期（2学期・自分と友達を見つめる）→発展期（3学期・次や未来につなげる）。段階で絞ると、年間の流れに合う問いが出ます。</li>
       <li><b>迷ったら</b>：「この条件からランダムに選ぶ」。提示モードで <span class="kbd">Space</span> を押すともう一度引けます。<span class="kbd">←</span><span class="kbd">→</span> で一覧の前後のテーマへ。</li>
-      <li><b>提示モードのキー</b>：<span class="kbd">F</span> 全画面　<span class="kbd">B</span> 背景の明暗　<span class="kbd">+</span><span class="kbd">−</span> 文字の大きさ　<span class="kbd">A</span> ねらいの表示　<span class="kbd">Enter</span> 使った記録　<span class="kbd">Esc</span> 閉じる</li>
+      <li><b>提示モードのキー</b>：<span class="kbd">F</span> 全画面　<span class="kbd">B</span> 背景の明暗　<span class="kbd">+</span><span class="kbd">−</span> 文字の大きさ　<span class="kbd">A</span> ねらいの表示　<span class="kbd">W</span> 「わたしは」の書き出し　<span class="kbd">Enter</span> 使った記録　<span class="kbd">Esc</span> 閉じる</li>
       <li><b>★ お気に入り</b>：よく使うテーマに★。「お気に入り」タブですぐ呼び出せます。</li>
       <li><b>✓ 使った記録</b>：使ったテーマに✓を押すと日付が残り、「まだ使っていない」で未使用だけを表示できます。</li>
       <li><b>追加・編集</b>：右上の「テーマを追加」で自分のテーマを。もとの200テーマもカードの✏から書き替えられます。</li>
@@ -609,7 +641,9 @@ const MONTH_MAP = {
 };
 const MONTHS = ["4月","5月","6月","7月","9月","10月","11月","12月","1月","2月","3月"];
 const CATS = ["学びと思考","学級・クラス","生活・教科・友達","自分・将来・社会"];
-const TAG_ORDER = ["自己理解","学び方","探究・問い","他者から学ぶ","失敗・つまずき","目標・自己調整","気持ち・感情","友達","学級づくり","リーダー・役割","感謝","表現・ことば","生活習慣","体・健康","読書・家庭学習","将来・仕事","社会・世の中"];
+const STAGES = {"導入":"導入期（1学期）","展開":"展開期（2学期）","発展":"発展期（3学期）"};
+const GRADE_LABEL = {"低":"低学年","中":"中学年","高":"高学年"};
+const TAG_ORDER = ["えらぶ型","絵でもOK","話してから書く","自己理解","学び方","探究・問い","他者から学ぶ","失敗・つまずき","目標・自己調整","気持ち・感情","友達","学級づくり","リーダー・役割","感謝","表現・ことば","生活習慣","体・健康","読書・家庭学習","将来・仕事","社会・世の中"];
 const PER_ORDER = ["通年","学級開き・4月","学期はじめ","学期おわり","週のはじめ","週のおわり","運動会","学習発表会・音楽会","宿泊学習・修学旅行","遠足・校外学習","行事全般","委員会・クラブ","席替え・班がえ","テスト返却","給食","清掃","休み時間","登下校","季節の変わり目","冬休み・新年","卒業・進級"];
 
 const $ = s => document.querySelector(s);
@@ -650,28 +684,31 @@ let used   = load(LS.used, {});
 let custom = load(LS.custom, []);
 let edited = load(LS.edit, {});
 let hidden = load(LS.hidden, []);
-let pref   = Object.assign({size:1, light:false, aim:true}, load(LS.pref, {}));
+let pref   = Object.assign({size:1, light:false, aim:true, start:true, grade:'高'}, load(LS.pref, {}));
 
 /* ---------- テーマ一覧 ---------- */
 function buildList(){
   const arr=[];
   BUILTIN.forEach(b=>{
-    const k='B'+b.n; if(hidden.includes(k)) return;
+    const k=b.key; if(hidden.includes(k)) return;
     const ov=edited[k]||{};
-    arr.push({key:k, n:b.n, custom:false, cat:ov.cat??b.cat, t:ov.t??b.t, a:ov.a??b.a, tags:ov.tags??b.tags, per:ov.per??b.per});
+    arr.push({key:k, n:b.n, custom:false, grade:ov.grade??b.grade, stage:ov.stage??b.stage, cat:ov.cat??b.cat, t:ov.t??b.t, a:ov.a??b.a, tags:ov.tags??b.tags, per:ov.per??b.per});
   });
-  custom.forEach(c=>arr.push({key:c.key, n:c.n, custom:true, cat:c.cat, t:c.t, a:c.a, tags:c.tags, per:c.per}));
+  custom.forEach(c=>arr.push({key:c.key, n:c.n, custom:true, grade:c.grade||'高', stage:c.stage||'導入', cat:c.cat, t:c.t, a:c.a, tags:c.tags, per:c.per}));
   return arr;
 }
 let ALL = buildList();
-function collect(field){ const s=new Set(); ALL.forEach(x=>(x[field]||[]).forEach(v=>s.add(v))); return [...s]; }
+function inGrade(){ return ALL.filter(x=>x.grade===state.grade); }
+function collect(field){ const s=new Set(); inGrade().forEach(x=>(x[field]||[]).forEach(v=>s.add(v))); return [...s]; }
 function orderedTags(){ const have=collect('tags'); return [...TAG_ORDER.filter(t=>have.includes(t)), ...have.filter(t=>!TAG_ORDER.includes(t))]; }
 function orderedPers(){ const have=collect('per');  return [...PER_ORDER.filter(t=>have.includes(t)), ...have.filter(t=>!PER_ORDER.includes(t))]; }
 
 /* ---------- 絞り込み ---------- */
-const state = { q:'', cats:new Set(), tags:new Set(), pers:new Set(), month:'', inclAll:true, view:'all', sort:'no' };
+const state = { q:'', cats:new Set(), tags:new Set(), pers:new Set(), stages:new Set(), month:'', inclAll:true, view:'all', sort:'no', grade:pref.grade };
 let shuffleSeed = [];
 function matches(x){
+  if(x.grade!==state.grade) return false;
+  if(state.stages.size && !state.stages.has(x.stage)) return false;
   if(state.view==='fav'    && !fav.includes(x.key)) return false;
   if(state.view==='unused' &&  used[x.key]) return false;
   if(state.view==='used'   && !used[x.key]) return false;
@@ -704,15 +741,17 @@ let currentList = [];
 function chipHtml(label, on, count, cls, color){
   return `<button class="chip${cls?' '+cls:''}${on?' on':''}" data-v="${esc(label)}"${color?` style="--c:${color}"`:''}>${esc(label)}<span class="cnt">${count}</span></button>`;
 }
-function countBy(field, value){ return ALL.filter(x=>field==='cat'?x.cat===value:(x[field]||[]).includes(value)).length; }
+function countBy(field, value){ return inGrade().filter(x=>field==='cat'?x.cat===value:field==='stage'?x.stage===value:(x[field]||[]).includes(value)).length; }
 function renderFilters(){
   $('#catChips').innerHTML = CATS.filter(c=>countBy('cat',c)>0).map(c=>chipHtml(c, state.cats.has(c), countBy('cat',c), 'cat', CAT_COLOR[c])).join('');
   $('#tagChips').innerHTML = orderedTags().map(t=>chipHtml(t, state.tags.has(t), countBy('tags',t))).join('');
   $('#perChips').innerHTML = orderedPers().map(t=>chipHtml(t, state.pers.has(t), countBy('per',t))).join('');
+  $('#stageChips').innerHTML = Object.keys(STAGES).map(k=>chipHtml(STAGES[k], state.stages.has(k), countBy('stage',k), 'stg').replace('data-v="'+esc(STAGES[k])+'"','data-v="'+k+'"')).join('');
+  $$('#grades .gbtn').forEach(b=>b.classList.toggle('on', b.dataset.g===state.grade));
   $('#months').innerHTML = MONTHS.map(m=>`<button class="mo${state.month===m?' on':''}" data-m="${m}">${m}</button>`).join('');
   const setN=(id,n)=>{ const el=$(id); el.classList.toggle('active',n>0); el.querySelector('.n').textContent=n; };
-  setN('#secCat',state.cats.size); setN('#secTag',state.tags.size); setN('#secPer',state.pers.size); setN('#secMonth',state.month?1:0);
-  const total=state.cats.size+state.tags.size+state.pers.size+(state.month?1:0)+(state.q?1:0);
+  setN('#secCat',state.cats.size); setN('#secTag',state.tags.size); setN('#secPer',state.pers.size); setN('#secStage',state.stages.size); setN('#secMonth',state.month?1:0);
+  const total=state.cats.size+state.tags.size+state.pers.size+state.stages.size+(state.month?1:0)+(state.q?1:0);
   $('#fab').classList.toggle('active',total>0); $('#fab .n').textContent=total;
   $('#searchBox').classList.toggle('has', !!state.q);
   // いま効いている条件（カードの上）
@@ -721,6 +760,7 @@ function renderFilters(){
   state.cats.forEach(v=>ab.push({k:'cat',v,l:v}));
   state.tags.forEach(v=>ab.push({k:'tag',v,l:v}));
   state.pers.forEach(v=>ab.push({k:'per',v,l:v}));
+  state.stages.forEach(v=>ab.push({k:'stage',v,l:STAGES[v]}));
   if(state.month) ab.push({k:'month', l:state.month+(state.inclAll?'（＋通年）':'')});
   $('#activeBar').innerHTML = ab.length ? '絞り込み中： '+ab.map(a=>`<span class="abchip">${esc(a.l)}<button data-k="${a.k}" data-v="${esc(a.v||'')}" title="外す">${icon('x')}</button></span>`).join('') : '';
 }
@@ -730,7 +770,7 @@ function cardHtml(x){
     <div class="meta"><span class="no">${x.custom?'自作':'No.'+String(x.n).padStart(3,'0')}</span><span class="catbadge">${esc(x.cat)}</span></div>
     <p class="theme">${esc(x.t)}</p>
     ${x.a?`<p class="aim">${esc(x.a)}</p>`:''}
-    <div class="tags">${(x.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${(x.per||[]).map(t=>`<span class="tag per">${esc(t)}</span>`).join('')}</div>
+    <div class="tags"><span class="tag stage s${({導入:1,展開:2,発展:3})[x.stage]||1}">${esc((STAGES[x.stage]||'').replace(/（.*/,''))}</span>${(x.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${(x.per||[]).map(t=>`<span class="tag per">${esc(t)}</span>`).join('')}</div>
     <div class="acts">
       <button class="abtn star${isFav?' on':''}" data-act="star" title="お気に入り">${icon('star')}</button>
       <button class="abtn use${u?' on':''}" data-act="use" title="使った記録">${icon('check')}${u?'使った':'使う'}</button>
@@ -765,7 +805,8 @@ $('#grid').addEventListener('click', e=>{
 function chipHandler(el, set){
   el.addEventListener('click', e=>{ const b=e.target.closest('.chip'); if(!b) return; const v=b.dataset.v; set.has(v)?set.delete(v):set.add(v); render(); });
 }
-chipHandler($('#catChips'), state.cats); chipHandler($('#tagChips'), state.tags); chipHandler($('#perChips'), state.pers);
+chipHandler($('#catChips'), state.cats); chipHandler($('#tagChips'), state.tags); chipHandler($('#perChips'), state.pers); chipHandler($('#stageChips'), state.stages);
+$('#grades').addEventListener('click', e=>{ const b=e.target.closest('.gbtn'); if(!b) return; state.grade=b.dataset.g; pref.grade=state.grade; save(LS.pref,pref); render(); window.scrollTo({top:0,behavior:'smooth'}); });
 $('#months').addEventListener('click', e=>{ const b=e.target.closest('.mo'); if(!b) return; state.month = state.month===b.dataset.m ? '' : b.dataset.m; render(); });
 $('#q').addEventListener('input', e=>{ state.q=e.target.value.trim(); render(); });
 $('#qClear').addEventListener('click', ()=>{ $('#q').value=''; state.q=''; render(); $('#q').focus(); });
@@ -776,12 +817,12 @@ $('#activeBar').addEventListener('click', e=>{
   const b=e.target.closest('button[data-k]'); if(!b) return;
   const {k,v}=b.dataset;
   if(k==='q'){ state.q=''; $('#q').value=''; }
-  if(k==='cat') state.cats.delete(v); if(k==='tag') state.tags.delete(v); if(k==='per') state.pers.delete(v);
+  if(k==='cat') state.cats.delete(v); if(k==='tag') state.tags.delete(v); if(k==='per') state.pers.delete(v); if(k==='stage') state.stages.delete(v);
   if(k==='month') state.month='';
   render();
 });
 function clearAll(){
-  state.q=''; state.cats.clear(); state.tags.clear(); state.pers.clear(); state.month=''; state.view='all';
+  state.q=''; state.cats.clear(); state.tags.clear(); state.pers.clear(); state.stages.clear(); state.month=''; state.view='all';
   $('#q').value=''; $$('[data-view]').forEach(x=>x.classList.toggle('on', x.dataset.view==='all'));
   render();
 }
@@ -822,6 +863,8 @@ function applyPref(){
   $('#stTheme use').setAttribute('href', pref.light ? '#ic-moon' : '#ic-sun');
   $('#stAim').style.display = pref.aim ? '' : 'none';
   $('#stAimTgl').classList.toggle('on', !!pref.aim);
+  $('#stStart').style.display = pref.start ? '' : 'none';
+  $('#stStartTgl').classList.toggle('on', !!pref.start);
   save(LS.pref, pref);
 }
 function showStage(item){
@@ -830,7 +873,8 @@ function showStage(item){
   $('#stCat').innerHTML = `<span class="cb" style="--c:${color}">${esc(item.cat)}</span><span>${item.custom?'自作テーマ':'No.'+item.n}</span>`;
   $('#stText').textContent = item.t;
   $('#stAim').innerHTML = item.a ? `ねらい　<b>${esc(item.a)}</b>` : '';
-  $('#stMeta').textContent = [...(item.tags||[]), ...(item.per||[])].join(' ・ ');
+  $('#stMeta').textContent = [GRADE_LABEL[item.grade]||'', (STAGES[item.stage]||'').replace(/（.*/,''), ...(item.tags||[]), ...(item.per||[])].filter(Boolean).join(' ・ ');
+  $('#stStart').innerHTML = item.grade==='低' ? 'かきだしは <b>「わたしは…」</b>' : '書き出しは <b>「わたしは〜」</b>';
   stIndex = currentList.findIndex(x=>x.key===item.key);
   $('#stPos').textContent = stIndex>=0 ? `${stIndex+1} / ${currentList.length}` : '';
   $('#stProgress').style.width = stIndex>=0 ? ((stIndex+1)/currentList.length*100)+'%' : '0';
@@ -869,6 +913,7 @@ $('#stTheme').addEventListener('click', ()=>{ pref.light=!pref.light; applyPref(
 $('#stSmall').addEventListener('click', ()=>{ pref.size=Math.max(.6, +(pref.size-0.1).toFixed(2)); applyPref(); });
 $('#stLarge').addEventListener('click', ()=>{ pref.size=Math.min(1.8, +(pref.size+0.1).toFixed(2)); applyPref(); });
 $('#stAimTgl').addEventListener('click', ()=>{ pref.aim=!pref.aim; applyPref(); });
+$('#stStartTgl').addEventListener('click', ()=>{ pref.start=!pref.start; applyPref(); });
 /* 操作しないと数秒でボタンを薄く消す（提示中にじゃまにならないように） */
 let uiTimer=null;
 function wakeUi(){ const st=$('#stage'); st.classList.remove('hideui'); clearTimeout(uiTimer); uiTimer=setTimeout(()=>{ if(st.classList.contains('open')) st.classList.add('hideui'); }, 5000); }
@@ -913,6 +958,7 @@ document.addEventListener('keydown', e=>{
     else if(e.key==='f'||e.key==='F'){ toggleFs(); }
     else if(e.key==='b'||e.key==='B'){ $('#stTheme').click(); }
     else if(e.key==='a'||e.key==='A'){ $('#stAimTgl').click(); }
+    else if(e.key==='w'||e.key==='W'){ $('#stStartTgl').click(); }
     else if(e.key==='+'||e.key==='='||e.key===';'){ $('#stLarge').click(); }
     else if(e.key==='-'){ $('#stSmall').click(); }
     else if(e.key==='s'||e.key==='S'){ $('#stStar').click(); }
@@ -931,6 +977,8 @@ function openEdit(item){
   $('#eCat').innerHTML = CATS.map(c=>`<option>${esc(c)}</option>`).join('');
   $('#eText').value = item ? item.t : ''; $('#eAim').value = item ? (item.a||'') : '';
   $('#eCat').value = item ? item.cat : CATS[0];
+  $('#eGrade').value = item ? (item.grade||'高') : state.grade;
+  $('#eStage').value = item ? (item.stage||'導入') : '導入';
   $('#eTags').value = item ? (item.tags||[]).join(',') : ''; $('#ePer').value = item ? (item.per||[]).join(',') : '通年';
   $('#tagList').textContent = '使えるタグ： '+orderedTags().join('・');
   $('#perList').textContent = '使えるタグ： '+orderedPers().join('・');
@@ -942,7 +990,7 @@ function splitTags(s){ return s.split(/[,、，]/).map(x=>x.trim()).filter(Boole
 $('#eSave').addEventListener('click', ()=>{
   const t=$('#eText').value.trim();
   if(!t){ notify('テーマの文を入力してください。').then(()=>$('#eText').focus()); return; }
-  const data={cat:$('#eCat').value, t, a:$('#eAim').value.trim(), tags:splitTags($('#eTags').value), per:splitTags($('#ePer').value)};
+  const data={cat:$('#eCat').value, grade:$('#eGrade').value, stage:$('#eStage').value, t, a:$('#eAim').value.trim(), tags:splitTags($('#eTags').value), per:splitTags($('#ePer').value)};
   if(!data.per.length) data.per=['通年'];
   if(editKey===null){ custom.push({key:'C'+Date.now(), n:null, ...data}); save(LS.custom,custom); toast('テーマを追加しました'); }
   else if(editKey.startsWith('C')){ Object.assign(custom.find(x=>x.key===editKey), data); save(LS.custom,custom); toast('保存しました'); }
@@ -990,7 +1038,7 @@ $('#btnResetUsed').addEventListener('click', async ()=>{
 $('#btnResetAll').addEventListener('click', async ()=>{
   if(!await ask('★・記録・追加テーマなど、保存データをすべて消します。元に戻せません。よろしいですか？','全部消す')) return;
   Object.values(LS).forEach(k=>localStorage.removeItem(k));
-  fav=[]; used={}; custom=[]; edited={}; hidden=[]; pref={size:1,light:false,aim:true};
+  fav=[]; used={}; custom=[]; edited={}; hidden=[]; pref={size:1,light:false,aim:true,start:true,grade:state.grade};
   ALL=buildList(); render(); $('#dataModal').classList.remove('open'); toast('保存データを消しました');
 });
 $('#btnHelp').addEventListener('click', ()=>$('#helpModal').classList.add('open'));
