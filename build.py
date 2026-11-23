@@ -8,6 +8,7 @@ import re, sys, json, pathlib
 here = pathlib.Path(__file__).parent
 sys.path.insert(0, str(here / 'data_src'))
 from themes_low_mid import LOW_THEMES, MID_THEMES  # noqa
+from themes_more import LOW_MORE_THEMES, MID_MORE_THEMES, HIGH_MORE_THEMES  # noqa（2026-11-23 追加分）
 
 html = (here / 'data_src' / 'original.html').read_text(encoding='utf-8')
 m = re.search(r'const BUILTIN = (\[.*?\]);', html, re.S)
@@ -28,10 +29,11 @@ for x in high:
     x['key'] = 'B' + str(x['n'])
     x['grade'] = '高'
     x['stage'] = stage_of_high(x)
-for x in LOW_THEMES: x['grade'] = '低'
-for x in MID_THEMES: x['grade'] = '中'
+for x in HIGH_MORE_THEMES: x['grade'] = '高'
+for x in LOW_THEMES + LOW_MORE_THEMES: x['grade'] = '低'
+for x in MID_THEMES + MID_MORE_THEMES: x['grade'] = '中'
 
-allthemes = LOW_THEMES + MID_THEMES + high
+allthemes = LOW_THEMES + LOW_MORE_THEMES + MID_THEMES + MID_MORE_THEMES + high + HIGH_MORE_THEMES
 keys = [x['key'] for x in allthemes]
 assert len(keys) == len(set(keys)), '重複キー'
 builtin = json.dumps(allthemes, ensure_ascii=False, separators=(',', ':'))
@@ -43,4 +45,5 @@ out = tpl.replace('/*__BUILTIN__*/', 'const BUILTIN = ' + builtin + ';')
 from collections import Counter
 print(f'index.html を作りました（テーマ {len(allthemes)} 件・{len(out):,} 文字）')
 print(' 学年:', dict(Counter(x["grade"] for x in allthemes)))
+print(' 気楽に書ける:', {g: sum('気楽に書ける' in x['tags'] for x in allthemes if x['grade']==g) for g in '低中高'})
 print(' 段階:', {g: dict(Counter(x["stage"] for x in allthemes if x["grade"] == g)) for g in "低中高"})
